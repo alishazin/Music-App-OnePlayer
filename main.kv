@@ -1,0 +1,735 @@
+#:import utils kivy.utils 
+
+<MDMenuItem>:
+    radius: 0,0,0,0
+    on_release: app.search_press(self.text)
+
+<ContentDialog>:
+    size_hint_y: None
+    height: 150
+    
+    MDBoxLayout:
+        size_hint: .3,1
+        pos_hint: {'center_x': .12, 'center_y': .63}
+
+        FitImage:
+            id: check_img_show
+            source: 'https://images.pexels.com/photos/262488/pexels-photo-262488.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500'
+
+    MDTextField:
+        id: entry_link
+        hint_text: 'Paste The Link Here'
+        size_hint_x: .65
+        pos_hint: {'x': .32, 'center_y': .8}
+        mode: 'rectangle'
+
+    MDFlatButton:   
+        text: 'CHECK'
+        pos_hint: {'center_x': .73, 'center_y': .2}
+        on_release: check_img_show.source = entry_link.text
+
+    MDRaisedButton:
+        text: 'CONFIRM'
+        pos_hint: {'center_x': .92, 'center_y': .2}
+        on_release: app.check_link(entry_link.text)
+
+<ImageTile>:
+    MDRelativeLayout:
+
+        FitImage:
+            source: root.source
+            size_hint: 1,1
+
+        MDBoxLayout:
+            size_hint: 1,.3
+            pos_hint: {'center_y': .13}
+            orientation: 'horizontal'
+            md_bg_color: (1,1,1,.5) if app.theme_cls.theme_style == 'Light' else (0,0,0,.5)
+
+            MDLabel:
+                id: img_name
+                text: root.text
+                size_hint_x: .8
+
+            FocusMDIconButton5:
+                icon: 'delete'
+                pos_hint: {'center_y': .5}
+                user_font_size: 25
+                on_press: self.user_font_size = 20
+                on_release: 
+                    self.user_font_size = 25
+                    app.delete_image(img_name.text)
+
+<AddImage>:
+    ripple_behavior: True
+    on_release: app.add_image()
+
+    MDIcon:
+        icon: 'image-plus'
+        font_size: 50
+        halign: 'center'
+        valign: 'center'
+
+<ArtistSort>:
+    IconLeftWidget:
+        icon: root.icon
+
+<SongDetailsItem>:
+    orientation: "vertical"
+    size_hint: 1, None
+    height: 140
+    focus_behavior: True
+    ripple_behavior: False
+    elevation: 15
+    pos_hint: {"center_x": .5, "center_y": .5}
+
+    MDBoxLayout:
+        id: box_top
+        spacing: 8
+        adaptive_height: True
+
+        FitImage:
+            id: _song_img_menu
+            source: root.img
+            size_hint: .3, None
+            height: 95
+
+        MDBoxLayout:
+            id: text_box
+            orientation: "vertical"
+            height: 95
+            spacing: 8
+            padding: 5,8,0,0
+
+            MDLabel:
+                id: _song_name 
+                text: root.text 
+                theme_text_color: "Primary"
+                font_style: "H5"
+                bold: True 
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            FocusMDTextButton2:
+                id: _artist_name
+                text: root.text_sec
+                theme_text_color: "Hint"
+                on_release: app.sort_artist(self.text)
+
+            MDLabel:
+                id: _song_duration
+                text: root.song_duration
+                theme_text_color: "Hint"
+                font_size: 15
+                size_hint_y: None
+                height: self.texture_size[1]
+
+            Widget: 
+                size_hint: None,.03
+
+    MDSeparator:
+        id: separator_
+        size_hint_x: .1
+        md_bg_color: 1,1,1,.3
+
+    MDBoxLayout:
+
+        FocusMDIconButton2:
+            icon: 'play-outline'
+            user_font_size: 20
+            pos_hint: {'center_y':.5}
+            on_release: app.song_play_menu_screen(_song_name.text,_song_img_menu.source,_artist_name.text,0,1)
+
+        Widget: 
+            
+        FocusMDIconButton2:
+            icon: 'delete'
+            user_font_size: 20
+            pos_hint: {'center_y':.5}
+            on_release: app.delete_confirmation(_song_name.text)
+
+
+<MenuListContent>:
+    text: root.text
+    on_release: app.menu_list_click(self.text)
+    
+    IconLeftWidget:
+        icon: root.icon
+
+
+<SettingsListContentFormat1>:
+    text: root.text
+    _no_ripple_effect: True
+    on_size: 
+        self.ids._right_container.width = right_layout_dark_theme.width
+        self.ids._right_container.x = right_layout_dark_theme.width
+
+    IconLeftWidget:
+        icon: root.icon
+    
+    RightLayout:
+        id: right_layout_dark_theme
+
+        MDSwitch:
+            width: 40
+            pos_hint: {'center_x': .4}
+            active: False if app.dark_theme == 'off' else True
+            on_active: app.settings_dark_theme_switch(*args)
+
+
+<SettingsListContentFormat2>:
+    text: root.text
+    _no_ripple_effect: True
+    on_size: 
+        self.ids._right_container.width = right_layout_theme_color.width
+        self.ids._right_container.x = right_layout_theme_color.width
+
+    IconLeftWidget:
+        icon: root.icon
+    
+    RightLayout:
+        id: right_layout_theme_color
+
+        FocusMDRoundFlatButton:
+            id: theme_color_select_
+            markup: True
+            text: 'Edit'
+            text_color: self.theme_cls.primary_color
+            pos_hint: {'center_y': .5}
+            on_release: app.theme_picker()
+
+
+<SettingsListContentFormat3>:
+    text: root.text
+    _no_ripple_effect: True
+    on_size: 
+        self.ids._right_container.width = right_layout_path.width
+        self.ids._right_container.x = right_layout_path.width
+
+    IconLeftWidget:
+        icon: root.icon
+
+    RightLayout:
+        id: right_layout_path
+        width: 200
+
+        FocusMDRoundFlatButton:
+            id: butt1_path
+            markup: True
+            text: 'Change'
+            text_color: self.theme_cls.primary_color
+            pos_hint: {'center_x': .72 ,'center_y': .5}
+            on_release: app.open_file_manager_for_path_change()
+
+        FocusMDTextButton:
+            id: butt2_path
+            markup: True
+            text: 'Show Current'
+            color: (0,0,0,.6) if app.theme_cls.theme_style == 'Light' else (1,1,1,.6)
+            pos_hint: {'center_x': .1 ,'center_y': .5}
+            on_release: app.show_current_path()
+
+<SettingsListContentFormat4>:
+    text: root.text
+    _no_ripple_effect: True
+    on_size: 
+        self.ids._right_container.width = right_layout_dark_theme.width
+        self.ids._right_container.x = right_layout_dark_theme.width
+
+    IconLeftWidget:
+        icon: root.icon
+    
+    RightLayout:
+        id: right_layout_dark_theme
+
+        MDSwitch:
+            width: 40
+            pos_hint: {'center_x': .4}
+            active: True if app.song_delete_confirmation == True else False
+            on_active: app.song_confirmation_check(*args)
+
+
+Screen:
+    MDNavigationLayout:
+
+        ScreenManager:
+            id: _screen_manager
+
+            Screen:
+                name: '_empty_screen'
+
+                MDBoxLayout:
+                    id: _menu_box_layout
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        markup: True
+                        title: '[size=36]Songs[/size]'
+                        left_action_items: [['menu', lambda x: menu_.set_state('open'), 'menu']]
+                        md_bg_color: app.theme_cls.primary_color
+                        pos_hint: {'top': 1}
+                        height: 150
+
+                    Widget:
+                        id: _dummy_widget
+
+                    MDIconButton:
+                        id: _dummy_icon
+                        ripple_effect: False
+                        icon: 'cloud-search'
+                        pos_hint: {'center_x':.5}
+                        user_font_size: 200
+
+                    MDLabel:
+                        id: _dummy_label
+                        halign: 'center'
+                        font_size: 20
+
+                    Widget:
+                        id: _dummy_widget2
+
+            Screen:
+                name: '_menu_screen'
+                on_pre_enter: app.check_any_updates()
+
+                MDBoxLayout:
+                    id: _menu_box_layout
+                    orientation: 'vertical'
+
+                    MDBoxLayout:
+                        orientation: 'vertical'
+
+                        MDToolbar:
+                            id: toolbar_menu
+                            markup: True
+                            title: '[size=36]Songs[/size]'
+                            left_action_items: [['menu', lambda x: menu_.set_state('open'), 'menu']]
+                            md_bg_color: app.theme_cls.primary_color
+                            pos_hint: {'top': 1}
+                            height: 150
+                            elevation: 20
+
+                        MDLabel:
+                            id: all_details
+                            markup: True
+                            size_hint_y: .1
+                            halign: 'left'
+                            height: self.texture_size[1]
+
+                        ScrollView:
+                            id: _scrollbar_menu
+                            scroll_type: ['bars']
+                            smooth_scroll_end: 10
+                            on_scroll_start: app.scroll_toolbar_controller(self.scroll_y)
+
+                            MDList:
+                                id: _song_list
+                                padding: 5,5,2,2
+                                spacing: 3
+
+                    MDRelativeLayout:
+                        id: bottom_bar
+                        size_hint: 1,.1
+                        md_bg_color: (1,1,1,.2) if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#CBCBCB')
+                        radius: 20,20,0,0
+
+                        CircularElevationButton2:
+                            size_hint: .08,1
+                            pos_hint: {'center_x': .1, 'center_y': 1}
+                            radius: 40,40,40,40
+                            md_bg_color: app.theme_cls.primary_color
+                            _elevation: 10
+                            on_press: 
+                                self.size_hint = (.07,.9)
+                            on_release:
+                                self.size_hint = (.08,1) 
+                                app.move_to_song_menu('_menu_screen','_menu_screen')
+
+                            MDIcon:
+                                id: _back_to_song_screen
+                                icon: 'chevron-up'
+                                halign: 'center'
+                                font_size: 24
+                                valign: 'center'
+                                angle: 0
+                                canvas.before:
+                                    PushMatrix
+                                    Rotate:
+                                        angle: self.angle
+                                        axis: 0,0,1
+                                        origin: self.center
+                                canvas.after:
+                                    PopMatrix
+
+                        MDLabel:
+                            id: song_name_bottom_bar
+                            text: ''
+                            size_hint_y: .08
+                            halign: 'left'
+                            pos_hint: {'center_x': .7, 'center_y':.5}
+
+
+            Screen:
+                on_pre_enter: app.check_empty_playlist()
+                name: '_settings_screen'
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        title: 'Settings'
+                        left_action_items: [['keyboard-backspace', lambda x: app.back_to_menu(1), 'back']]
+                        md_bg_color: app.theme_cls.primary_color
+                        pos_hint: {'top': 1}
+
+                    MDList:
+                        id: settings_list_
+                        size_hint_y: .81
+
+                    MDRelativeLayout:
+                        id: bottom_bar2
+                        size_hint: 1,.09
+                        md_bg_color: (1,1,1,.2) if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#CBCBCB')
+                        radius: 20,20,0,0
+
+                        CircularElevationButton2:
+                            size_hint: .08,1
+                            pos_hint: {'center_x': .1, 'center_y': 1}
+                            radius: 40,40,40,40
+                            md_bg_color: app.theme_cls.primary_color
+                            _elevation: 10
+                            on_press: 
+                                self.size_hint = (.07,.9)
+                            on_release:
+                                self.size_hint = (.08,1) 
+                                app.move_to_song_menu('_settings_screen','_settings_screen')
+
+                            MDIcon:
+                                id: _back_to_song_screen2
+                                icon: 'chevron-up'
+                                halign: 'center'
+                                valign: 'center'
+                                font_size: 24
+                                angle: 0
+                                canvas.before:
+                                    PushMatrix
+                                    Rotate:
+                                        angle: self.angle
+                                        axis: 0,0,1
+                                        origin: self.center
+                                canvas.after:
+                                    PopMatrix
+
+                        MDLabel:
+                            id: song_name_bottom_bar2
+                            text: ''
+                            size_hint_y: .08
+                            halign: 'left'
+                            pos_hint: {'center_x': .7, 'center_y':.5}
+
+            Screen:
+                name: '_add_song_screen'
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        title: 'Add Songs'
+                        left_action_items: [['keyboard-backspace', lambda x: app.back_to_menu(0), 'back']]
+                        md_bg_color: app.theme_cls.primary_color
+                        pos_hint: {'top': 1}
+
+                    Widget:
+                        size_hint: None,.15
+
+                    MDTextField:
+                        id: song_name_
+                        hint_text: 'Name the song'
+                        size_hint: .5, None
+                        pos_hint: {'center_x': .3}
+                        mode: 'rectangle'
+                        helper_text: 'Should not be left blank'
+                        helper_text_mode: "on_focus"
+                        max_text_length: 30
+
+                    Widget:
+                        size_hint: None,.1
+
+                    MDTextField:
+                        id: artist_name_
+                        hint_text: 'Artist Name (optional)'
+                        size_hint: .53, None
+                        pos_hint: {'center_x': .3}
+                        helper_text: 'Should not be more than 15 characters'
+                        helper_text_mode: "on_error"
+                        max_text_length: 30
+                        on_focus: if self.focus: app.artist_search()
+
+                    Widget:
+                        size_hint: None,.2
+
+                    MDRoundFlatButton:
+                        text: 'Confirm'
+                        pos_hint: {'center_x':.3}
+                        on_release: app.confirm_song_details(song_name_.text,artist_name_.text)
+
+                    Widget:
+
+            Screen:
+                name: '_artist_sort_screen'
+                
+                MDBoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        id: artist_sort_toolbar
+                        title: ''
+                        left_action_items: [['keyboard-backspace', lambda x: app.back_to_menu(2), 'back']]
+                        md_bg_color: app.theme_cls.primary_color
+                        pos_hint: {'top': 1}
+
+                    ScrollView:
+                        scroll_type: ['bars']
+
+                        MDList:
+                            id: artist_sort_list
+                            padding: 1,1,1,1
+
+            Screen:
+                name: '_image_screen'
+                on_pre_enter: app.enter_img_screen()
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+
+                    MDToolbar:
+                        id: imgtool
+                        title: 'Image List'
+                        left_action_items: [['keyboard-backspace', lambda x: app.back_to_menu(2), 'back']]
+                        md_bg_color: app.theme_cls.primary_color
+                        pos_hint: {'top': 1}
+
+                    ScrollView:
+                        id: scr
+                        height: Window.height - imgtool.height
+                        scroll_type: ['bars']
+                        
+                        MDGridLayout:
+                            id: image_list_
+                            cols: 3
+                            adaptive_height: True
+                            row_default_height: 150
+                            row_force_default: True
+                            padding: 4
+                            spacing: 2
+
+            Screen:
+                name: '_about_us_screen'
+
+                MDRelativeLayout:
+
+                    MDToolbar:
+                        title: 'About Us'
+                        left_action_items: [['keyboard-backspace', lambda x: app.back_to_menu(1), 'back']]
+                        md_bg_color: app.theme_cls.primary_color
+                        pos_hint: {'top': 1}
+
+                    FitImage:
+                        source: 'C:/myhub/OnePlayerKivy/Icon_One.png'
+                        size_hint: .1,.1
+                        pos_hint: {'center_x': .15,'center_y': .75}
+
+                    MDLabel:
+                        text: 'OnePlayer'
+                        font_style: 'H2'
+                        color: 0,0,0,1
+                        pos_hint: {'center_x': .55,'center_y': .75}
+                        size_hint_x: .6
+                        size_hint_y: .1
+
+                    MDLabel:
+                        text: "Dear users,\n\n          We are a non-profitable organisation who wish to provide free music to everyone. We don't have engineers to pay for, so we wish we could continue providing free music for the years to come\n\n                                                                          OnePlayer Community"
+                        size_hint_x: .8
+                        font_size: 20
+                        color: 0,0,0,.5
+                        pos_hint: {'center_x': .55,'center_y': .5}
+
+
+            Screen:
+                name: '_song_screen'
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+
+                    Widget:
+                        size_hint_y: .06
+
+                    MDRelativeLayout:
+                        id: top_bar_song_screen
+                        size_hint: 1,.1
+                        md_bg_color: (1,1,1,.2) if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#CBCBCB')
+                        radius: 20,20,0,0
+
+                        CircularElevationButton2:
+                            size_hint: .08,1
+                            pos_hint: {'center_x': .1, 'center_y': 1}
+                            radius: 40,40,40,40
+                            md_bg_color: app.theme_cls.primary_color
+                            _elevation: 10
+                            on_press: 
+                                self.size_hint = (.07,.9)
+                            on_release:
+                                self.size_hint = (.08,1) 
+                                app.back_from_song_screen()
+
+                            MDIcon:     
+                                id: _back_to_menu_from_song_screen
+                                icon: 'chevron-up'
+                                halign: 'center'
+                                valign: 'center'
+                                angle: 0
+                                canvas.before:
+                                    PushMatrix
+                                    Rotate:
+                                        angle: self.angle
+                                        axis: 0,0,1
+                                        origin: self.center
+                                canvas.after:
+                                    PopMatrix
+                    
+                    MDRelativeLayout:
+                        md_bg_color: (1,1,1,.1) if app.theme_cls.theme_style == 'Dark' else (0,0,0,.1)
+
+                        MDLabel:
+                            id: _song_name_song
+                            text: ''
+                            theme_text_color: "Primary"
+                            bold: True
+                            font_size: 18
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            pos_hint: {'center_x': .5, 'center_y': .94}
+                            size_hint_x: 1
+                            halign: 'center'              
+
+                        ShadowFitImage:
+                            id: _song_img_song
+                            source: ''
+                            elevation: 5
+                            size_hint: .3,.6
+                            radius: 15,15,15,15
+                            pos_hint: {'center_x': .5, 'center_y': .6}
+
+                        MDLabel:
+                            id: _artist_name_song
+                            text: ''
+                            theme_text_color: "Hint"
+                            font_size: 14
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            pos_hint: {'center_x': .5, 'center_y': .27}
+                            size_hint_x: 1
+                            halign: 'center'
+
+                        CircularElevationButton:
+                            size_hint: .065,.075
+                            pos_hint: {'center_x': .5, 'center_y': .2}
+                            radius: 60,60,60,60
+                            md_bg_color: utils.get_color_from_hex('#D0C8C8') if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#2C2C2C')
+                            elevation: 2
+                            on_press: 
+                                self.size_hint = (.06,.07)
+                            on_release:
+                                self.size_hint = (.065,.075) 
+                                app.pause_play()
+
+                            MDIcon:
+                                id: _play_pause_icon
+                                icon: 'pause'
+                                halign: 'center'
+                                valign: 'center'
+                                theme_text_color: "Custom"
+                                text_color: utils.get_color_from_hex('#000000') if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#FFFFFF')
+
+                        FocusMDIconButton3:
+                            icon: 'skip-next'
+                            user_font_size: 25
+                            pos_hint: {'center_x': .57, 'center_y': .2}
+                            on_release: app.next_song_play()
+
+
+                        FocusMDIconButton3:
+                            icon: 'skip-previous'
+                            user_font_size: 25
+                            pos_hint: {'center_x': .43, 'center_y': .2}
+                            on_release: app.previous_song_play()                     
+
+                        MDLabel:
+                            id: song_duration_covered
+                            text: '00:00:00'
+                            bold: True
+                            font_size: 14
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            pos_hint: {'center_x': .25, 'center_y': .1172}
+                            size_hint_x: .1
+                            halign: 'right'
+
+                        FocusMDSlider:
+                            id: _song_slider
+                            min: 0
+                            max: 100
+                            value: 0
+                            hint: False
+                            color: utils.get_color_from_hex('#F3F3F3') if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#353535')
+                            size_hint_y: .05
+                            size_hint_x: .4
+                            pos_hint: {'center_x': .5, 'center_y': .12}
+                            thumb_size_active: 16
+                            thumb_size_normal: .1
+                            color_track: self.theme_cls.primary_color 
+                            on_active: app.song_seek(*args,self.value)
+
+                        MDLabel:
+                            id: song_duration_complete
+                            text: '00:00:00'
+                            bold: True
+                            font_size: 14
+                            size_hint_y: None
+                            height: self.texture_size[1]
+                            pos_hint: {'center_x': .75, 'center_y': .1172}
+                            size_hint_x: .1
+                            halign: 'left'
+
+                        FocusMDIconButton4:
+                            id: volume_icon
+                            icon: 'volume-high'
+                            user_font_size: 20
+                            pos_hint: {'center_x': .8, 'center_y': .118}
+                            on_release: app.sound_icon_button()
+                            theme_text_color: "Custom" 
+                            opacity: .5
+                            text_color: (1,1,1,1) if app.theme_cls.theme_style == 'Dark' else (0,0,0,1)
+
+                        FocusMDSlider:
+                            id: _song_sound_slider
+                            max: 100
+                            value: 100
+                            hint: False
+                            color: utils.get_color_from_hex('#F3F3F3') if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#353535')
+                            size_hint_y: .05
+                            size_hint_x: .15
+                            pos_hint: {'center_x': .887, 'center_y': .121}
+                            thumb_size_active: 16
+                            thumb_size_normal: .1
+                            color_track: self.theme_cls.primary_color 
+                            on_active: app.song_volume_controller(*args,self.value)
+
+    MDNavigationDrawer:
+        id: menu_
+        enable_swiping: False
+
+        MenuContent:
+            MDList:
+                id: menu_list_
+                pos_hint: {'top': 1}
