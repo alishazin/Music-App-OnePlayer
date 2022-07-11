@@ -1,8 +1,8 @@
 #:import utils kivy.utils 
 
-<MDMenuItem>:
-    radius: 0,0,0,0
+<CustomDropdownListItem>:
     on_release: app.search_press(self.text)
+    md_bg_color: (1,1,1,.5)
 
 <ContentDialog>:
     size_hint_y: None
@@ -338,7 +338,6 @@ Screen:
                             pos_hint: {'center_x': .1, 'center_y': 1}
                             radius: 40,40,40,40
                             md_bg_color: app.theme_cls.primary_color
-                            _elevation: 10
                             on_press: 
                                 self.size_hint = (.07,.9)
                             on_release:
@@ -347,10 +346,9 @@ Screen:
 
                             MDIcon:
                                 id: _back_to_song_screen
+                                pos_hint: {'center_x': .5, 'center_y': .5}
                                 icon: 'chevron-up'
-                                halign: 'center'
                                 font_size: 24
-                                valign: 'center'
                                 angle: 0
                                 canvas.before:
                                     PushMatrix
@@ -397,7 +395,6 @@ Screen:
                             pos_hint: {'center_x': .1, 'center_y': 1}
                             radius: 40,40,40,40
                             md_bg_color: app.theme_cls.primary_color
-                            _elevation: 10
                             on_press: 
                                 self.size_hint = (.07,.9)
                             on_release:
@@ -407,8 +404,7 @@ Screen:
                             MDIcon:
                                 id: _back_to_song_screen2
                                 icon: 'chevron-up'
-                                halign: 'center'
-                                valign: 'center'
+                                pos_hint: {'center_x': .5, 'center_y': .5}
                                 font_size: 24
                                 angle: 0
                                 canvas.before:
@@ -575,7 +571,6 @@ Screen:
                             pos_hint: {'center_x': .1, 'center_y': 1}
                             radius: 40,40,40,40
                             md_bg_color: app.theme_cls.primary_color
-                            _elevation: 10
                             on_press: 
                                 self.size_hint = (.07,.9)
                             on_release:
@@ -585,8 +580,7 @@ Screen:
                             MDIcon:     
                                 id: _back_to_menu_from_song_screen
                                 icon: 'chevron-up'
-                                halign: 'center'
-                                valign: 'center'
+                                pos_hint: {'center_x': .5, 'center_y': .5}
                                 angle: 0
                                 canvas.before:
                                     PushMatrix
@@ -636,7 +630,6 @@ Screen:
                             pos_hint: {'center_x': .5, 'center_y': .2}
                             radius: 60,60,60,60
                             md_bg_color: utils.get_color_from_hex('#D0C8C8') if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#2C2C2C')
-                            elevation: 2
                             on_press: 
                                 self.size_hint = (.06,.07)
                             on_release:
@@ -646,8 +639,7 @@ Screen:
                             MDIcon:
                                 id: _play_pause_icon
                                 icon: 'pause'
-                                halign: 'center'
-                                valign: 'center'
+                                pos_hint: {'center_x': .5, 'center_y': .5}
                                 theme_text_color: "Custom"
                                 text_color: utils.get_color_from_hex('#000000') if app.theme_cls.theme_style == 'Dark' else utils.get_color_from_hex('#FFFFFF')
 

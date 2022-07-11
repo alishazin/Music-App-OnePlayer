@@ -1,15 +1,15 @@
-#from kivy.config import Config
-#Config.set('graphics', 'resizable', False)
+from kivy.config import Config
+Config.set('graphics', 'resizable', False)
 from kivymd.app import MDApp
-from kivy.core.audio import SoundLoader
+from kivy.core.audio import SoundLoader, Sound
 from kivy.lang import Builder
 from kivymd.uix.button import MDRaisedButton, MDFlatButton, MDRoundFlatButton, MDFloatingActionButton, MDTextButton
 from kivymd.uix.behaviors import HoverBehavior
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.relativelayout import MDRelativeLayout
-from kivymd.uix.list import OneLineAvatarIconListItem, ThreeLineAvatarIconListItem
-from kivy.properties import StringProperty, NumericProperty
+from kivymd.uix.list import OneLineAvatarIconListItem, ThreeLineAvatarIconListItem, OneLineListItem
+from kivy.properties import StringProperty
 from kivy.clock import Clock
 from kivy.uix.screenmanager import NoTransition, CardTransition
 from kivymd.uix.list import IRightBodyTouch
@@ -21,8 +21,9 @@ from kivymd.uix.snackbar import Snackbar
 from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import Screen
 from kivymd.uix.card import MDCard
-from kivymd.uix.dialog import ModalView
-from kivymd.uix.button import MDIconButton, ButtonBehavior
+from kivy.uix.modalview import ModalView
+from kivymd.uix.button import MDIconButton
+from kivy.uix.behaviors.button import ButtonBehavior
 from kivymd.uix.dialog import MDDialog
 from kivy import utils
 from kivy.uix.scrollview import ScrollView
@@ -35,7 +36,7 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.imagelist import SmartTileWithLabel
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.textfield import MDTextField
-from kivymd.uix.menu import MDMenuItem
+# from kivymd.uix.menu import MDMenuItem
 from kivymd.uix.menu import MDDropdownMenu
 
 import sqlite3
@@ -48,13 +49,19 @@ from django.core.validators import URLValidator
 
 import re
 
+class CustomDropdownListItem(OneLineListItem, HoverBehavior):
+    def on_enter(self):
+        self.md_bg_color = (1,1,1,1)
+
+    def on_leave(self):
+        self.md_bg_color = (1,1,1,.5)
+
 class FocusMDSlider(MDSlider, ThemableBehavior, HoverBehavior):
     def on_enter(self):
         self.thumb_size_normal = 16
 
     def on_leave(self):
         self.thumb_size_normal = .1
-
 
 class ShadowFitImage(RoundedRectangularElevationBehavior, HoverBehavior, FitImage):
     def on_enter(self):
@@ -218,22 +225,12 @@ class FocusMDRaisedButton(MDRaisedButton, ThemableBehavior, HoverBehavior):
         self.pos_hint = self.curr_pos
 
 
-class CircularElevationButton(CircularElevationBehavior, CircularRippleBehavior, ButtonBehavior, HoverBehavior, MDBoxLayout):
-    def on_enter(self):
-        self._elevation = 10 
-    
-    def on_leave(self):
-        self._elevation = 2
-        self.size_hint = (.065,.075)
+class CircularElevationButton(CircularElevationBehavior, CircularRippleBehavior, ButtonBehavior, HoverBehavior, MDRelativeLayout):   
+    pass
 
 
-class CircularElevationButton2(CircularElevationBehavior, CircularRippleBehavior, ButtonBehavior, HoverBehavior, MDBoxLayout):
-    def on_enter(self):
-        self._elevation = 20
-
-    def on_leave(self):
-        self._elevation = 10
-        self.size_hint = (.08,1) 
+class CircularElevationButton2(CircularElevationBehavior, CircularRippleBehavior, ButtonBehavior, HoverBehavior, MDRelativeLayout):
+    pass
 
 class ContentDialog(MDRelativeLayout):
     pass
@@ -277,6 +274,9 @@ class OnePlayer(MDApp):
     updates_menu = False
     default_img = 'https://images.pexels.com/photos/6320/smartphone-vintage-technology-music.jpg?auto=compress&cs=tinysrgb&dpr=2&w=500'
     search_cur = False
+    single_occurence_artist = []
+    search_timer = None
+
 
     # initialisation of database
     conn = sqlite3.connect('OneP.db')
@@ -428,8 +428,8 @@ class OnePlayer(MDApp):
                         self.search_list_items.append(i)
                 self.search_labels = [
                 {
-                    'viewclass': 'MDMenuItem',
-                    'text': i
+                    'viewclass': 'CustomDropdownListItem',
+                    'text': i,
                     } for i in self.search_list_items
                 ]
 
@@ -437,7 +437,7 @@ class OnePlayer(MDApp):
                     caller=self.screen.ids.artist_name_,
                     items=self.search_labels,
                     position='bottom',
-                    width_mult=5
+                    width_mult=5,
                 )
                 self.search_menu.open()
         else:
@@ -526,7 +526,8 @@ class OnePlayer(MDApp):
         if instance == 0:
             self.screen.ids.song_name_.text = ''
             self.screen.ids.artist_name_.text = ''
-            Clock.unschedule(self.search_timer)
+            if self.search_timer:
+                Clock.unschedule(self.search_timer)
             self.on_entering_menu_configurations(0,True)
         if instance == 2:
             self.on_entering_menu_configurations(0,False)
@@ -961,8 +962,8 @@ class OnePlayer(MDApp):
             if screen_change == 0:
                 self.screen.ids.song_name_bottom_bar.text = ''
                 self.screen.ids.song_name_bottom_bar2.text = ''
-                self.screen.ids._back_to_song_screen.font_size = 1
-                self.screen.ids._back_to_song_screen2.font_size = 1
+                # self.screen.ids._back_to_song_screen.font_size = 1
+                # self.screen.ids._back_to_song_screen2.font_size = 1
                 self.screen.ids.bottom_bar.size_hint_y = .00001   
                 self.screen.ids.bottom_bar2.size_hint_y = .00001  
                 def child_func(interval):
@@ -1008,8 +1009,8 @@ class OnePlayer(MDApp):
 
             self.screen.ids.bottom_bar.size_hint_y = .1
             self.screen.ids.bottom_bar2.size_hint_y = .09
-            self.screen.ids._back_to_song_screen.font_size = 24
-            self.screen.ids._back_to_song_screen2.font_size = 24
+            # self.screen.ids._back_to_song_screen.font_size = 24
+            # self.screen.ids._back_to_song_screen2.font_size = 24
             self.screen.ids.song_name_bottom_bar.text = self.curr_active_song_name
             self.screen.ids.song_name_bottom_bar2.text = self.curr_active_song_name
             self.screen.ids._back_to_menu_from_song_screen.angle = 0
@@ -1054,10 +1055,12 @@ class OnePlayer(MDApp):
 
     def pause_play(self):
         if self.song_controller._get_status() == 'play':
+            print(10)
             self.screen.ids._play_pause_icon.icon = 'play'
             self.song_clearing_period = True
             self.pause_song()
         else:
+            print(20)
             self.song_clearing_period = True
             self.song_controller.play()
             self.song_controller.volume = 0
@@ -1082,6 +1085,7 @@ class OnePlayer(MDApp):
         def child_pause(interval):
             self.list_pause_seek.append(self.song_controller.get_pos())
             self.song_controller.volume = 0
+            print(self.list_pause_seek)
             self.song_controller.stop()
 
         self.song_controller.volume = (self.screen.ids._song_sound_slider.value/100) / 2
@@ -1191,8 +1195,8 @@ class OnePlayer(MDApp):
             if self.first_time == True:
                 self.song_play_menu_screen(song_name,song_img,song_artist,0,1)
             else:
-                self.screen.ids._back_to_song_screen.font_size = 1
-                self.screen.ids._back_to_song_screen2.font_size = 1
+                # self.screen.ids._back_to_song_screen.font_size = 1
+                # self.screen.ids._back_to_song_screen2.font_size = 1
                 self.screen.ids.song_name_bottom_bar.text = ''
                 self.screen.ids.song_name_bottom_bar2.text = ''
                 self.screen.ids.bottom_bar.size_hint_y = .00001
@@ -1220,8 +1224,8 @@ class OnePlayer(MDApp):
         check_empty = c.fetchall()
         if len(check_empty) == 0:
             self.screen.ids.song_name_bottom_bar2.text = ''
-            self.screen.ids._back_to_song_screen.font_size = 1
-            self.screen.ids._back_to_song_screen2.font_size = 1
+            # self.screen.ids._back_to_song_screen.font_size = 1
+            # self.screen.ids._back_to_song_screen2.font_size = 1
             self.screen.ids.bottom_bar2.size_hint_y = .00001
         else:
             pass
